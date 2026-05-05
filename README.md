@@ -1,166 +1,235 @@
-# 🤖 Deepfake Detection Web Application (Flask + XceptionNet)
+# DeepGuard – Face Deepfake Detection Dashboard
 
-This is a **Deepfake Detection Web Application** that allows users to upload **images or videos** and checks whether they are **real or fake (deepfake)** using an **AI model based on XceptionNet**.
+DeepGuard is a web-based deepfake detection dashboard that analyzes **face images and videos** and estimates whether they are **real or fake**.  
 
-The app uses **Flask** for the web interface and **TensorFlow** for deep learning inference.  
-It provides a simple, elegant user interface built with HTML templates, shows a “Processing…” stage, and gives a detailed **result, confidence score, and explanation** for each uploaded file.
+The interface looks and feels like a modern SaaS application, with:
 
----
+- Animated **“Analyzing media…”** overlay and progress steps  
+- Side panel showing **prediction, confidence and explanation**  
+- Built-in **chat assistant** that explains how the model works  
+- Support for **image and video uploads** in the same UI
 
-## 🧩 ABSTRACT
-
-The increasing use of AI-generated fake videos and images (deepfakes) has made authenticity verification a major challenge.  
-This project aims to identify such fake content by using a **deep learning model (XceptionNet)** trained to distinguish between real and AI-manipulated faces.
-
-When a user uploads an image or video, the model analyzes it and predicts whether it is **real or fake**, displaying the confidence and a human-friendly explanation.
+The backend is implemented with **Flask** and **TensorFlow**, using an **Xception + LSTM** model for temporal deepfake detection.
 
 ---
 
-## 🎯 OBJECTIVE
+## 1. Tech Stack
 
-- Detect and classify uploaded media (image or video) as **real** or **deepfake**.  
-- Provide a simple and interactive **web-based interface** using Flask.  
-- Generate confidence scores and clear explanations for model predictions.  
-- Process both **images** and **videos** using the same system.
+- **Backend**
+  - Python 3.10+  
+  - Flask (web framework)  
+  - TensorFlow 2.x (deep learning)  
+  - OpenCV (video frame extraction)  
+  - NumPy (numerical operations)
 
----
-
-## 🧠 HOW THE SYSTEM WORKS
-
-1. **User uploads a file** (image or video).  
-2. The system verifies file type and saves it to `static/uploads/`.  
-3. For **images**:
-   - The image is preprocessed and analyzed using the XceptionNet-based deepfake detector.  
-   - Output: “Real” or “Fake” + Confidence % + Explanation.  
-4. For **videos**:
-   - Frames are extracted using OpenCV.  
-   - Each frame is analyzed individually, and an overall score is computed.  
-   - Output: Overall video result + frame analysis summary.  
-5. Flask renders the **result.html** page showing the result, confidence, timestamp, and explanation.
+- **Frontend**
+  - HTML5 templates (Jinja2 via Flask)  
+  - CSS (custom design, modern dashboard theme)  
+  - JavaScript (vanilla, no framework)  
 
 ---
 
-## 🧰 TECHNOLOGIES USED
+## 2. Features
 
-| Category | Tool / Library |
-|-----------|----------------|
-| Backend Framework | Flask |
-| Deep Learning | TensorFlow (XceptionNet model) |
-| Image & Video Processing | OpenCV, Pillow, NumPy |
-| Web Design | HTML, CSS, Bootstrap |
-| Visualization | Matplotlib |
-| Utility | Werkzeug (file uploads), datetime |
-| Development | Visual Studio Code |
+1. **Image & video analysis**
+   - Upload **JPG/PNG** images or **MP4/AVI/MOV** videos.
+   - Media is validated, stored in `static/uploads/` and passed to the detector.
+
+2. **Xception + LSTM deepfake model**
+   - Xception CNN extracts per-frame facial features.
+   - LSTM models temporal patterns across frames.
+   - Outputs a probability score (0–1) mapped to **Real / Fake**.
+
+3. **Explainable output**
+   - Returns a detailed text explanation based on the confidence score.
+   - Describes artifacts such as spatial inconsistencies and temporal jitter.
+
+4. **Interactive dashboard UI**
+   - Hero “screen” with animated overlay and progress bar.
+   - Side panel with prediction, confidence, reasoning.
+   - Chat assistant panel on the right side.
+
+5. **Chat assistant**
+   - Simple rule-based chatbot (`/chat` endpoint).
+   - Answers basic questions about:
+     - Model architecture
+     - Datasets for training
+     - How predictions should be interpreted
 
 ---
 
-## 📁 FOLDER STRUCTURE
+## 3. Project Structure
 
+```text
+DEEPFAKE_detection/
+│ app.py                      # Flask application
+│ deepfake_detector.py        # Xception + LSTM model wrapper
+│ video_utils.py              # Frame extraction & file helpers
+│ requirements.txt            # Python dependencies
+│ README.md                   # (this file)
+│
+├── models/
+│   └── xception_lstm.h5      # Trained model weights (provided separately)
+│
+├── static/
+│   ├── css/
+│   │   └── style.css         # UI styling
+│   ├── js/
+│   │   └── main.js           # Frontend logic (upload + chat)
+│   └── uploads/              # Uploaded images/videos (auto-created)
+│
+└── templates/
+    ├── index.html            # Main dashboard + chatbot
+    ├── about.html            # About page (architecture & motivation)
+    ├── contact.html          # Contact / feedback page
+    └── result.html           # Optional full result view
+4. Requirements
+4.1 System Requirements
 
-deepfake_detection/
-│
-├─ app.py → Main Flask application file
-│
-├─ models/
-│ └─ deepfake_detector.py → Contains DeepfakeDetector class using XceptionNet
-    __init_.py
-│
-├─ utils/
-│ ├─ image_utils.py → Handles image loading and preprocessing
-│ ├─ video_utils.py → Extracts frames from videos
-__init_.py
-│
-├─ static/
-│ ├─ uploads/ → Stores uploaded images and videos
-│ ├─ css/, js/, logo.jpg → Optional frontend assets
-│
-├─ templates/
-│ ├─ index.html → Home page (upload form)
-│ ├─ result.html → Displays detection result
-│ ├─ about.html, contact.html → Info pages
-│
-├─ requirements.txt → Python dependencies
-└─ README.md → Project documentation
+OS: Windows 10/11, macOS, or Linux
 
- INSTALLATION AND SETUP
+Python: 3.10 or 3.11 (recommended)
 
-### Step 1️⃣ — Create a Virtual Environment
-```bash
+RAM: 8 GB minimum (more recommended if running larger models)
+
+Disk space: at least 3–4 GB free (TensorFlow + dependencies + model)
+
+4.2 Python Packages
+
+Defined in requirements.txt:
+flask>=3.0.0,<4.0.0
+tensorflow>=2.20.0,<2.21.0
+opencv-python>=4.10.0
+pillow>=10.0.0
+numpy>=1.26.0
+
+5. Installation Guide
+
+Below is a step-by-step installation flow suitable for non-technical users.
+
+Step 1 – Install Python
+
+Install Python 3.10 or 3.11 from:
+https://www.python.org/downloads/
+
+During installation, check “Add Python to PATH”.
+
+Step 2 – Download the project
+
+Copy the entire project folder DEEPFAKE_detection to your machine
+(for example: C:\Users\USERNAME\Desktop\DEEPFAKE_detection).
+
+Make sure the structure matches the “Project Structure” section above.
+
+Step 3 – Place the model weights
+
+Ask the developer for the file: xception_lstm.h5.
+
+Put it into:
+DEEPFAKE_detection/models/xception_lstm.h5
+If this file is missing, the app will still run, but predictions will be random (untrained model).
+
+and also run 
+-> python train_xception_lstm.py
+the above will train the model in your laptop and then run the application that is python app.py but first go acc to the steps given and then run the application.
+
+Step 5– Create a virtual environment
+
+Open a terminal in the project folder:
+
+On Windows (PowerShell)/ :
+cd path\to\DEEPFAKE_detection
+
 python -m venv venv
-Activate it:
+\venv\Scripts\Activate
 
-Windows → venv\Scripts\activate
+Step 4 – Install Python dependencies
 
-Mac/Linux → source venv/bin/activate
+With the virtual environment activated:
 
-Step 2️ — Install Required Packages
-bash
-Copy code
+pip install Flask, TensorFlow, OpenCV, Pillow and NumPy.
+
+pip install --upgrade pip
 pip install -r requirements.txt
-If needed, you can manually install the main packages:
 
-bash
-Copy code
-pip install flask tensorflow opencv-python pillow numpy werkzeug matplotlib
-Step 3️ — Run the Flask Application
-bash
-Copy code
+
+This will install Flask, TensorFlow, OpenCV, Pillow and NumPy.
+
+6. Running the Application
+
+With the virtual environment activated and dependencies installed:
+
 python app.py
-If successful, you’ll see:
-
-Loading AI models...
-System ready!
- * Running on http://127.0.0.1:5000/
-Open this address in your web browser.
-
- HOW TO USE
-Go to http://127.0.0.1:5000/
-
-Choose either:
-
-Image Upload
-
- Video Upload
 
 
-Then, the final result on the next page (result.html):
+If everything is correct, you should see something like:
 
-Real (Authentic)
+ * Running on http://127.0.0.1:5000 (Press CTRL+C to quit)
 
- Fake (Deepfake Detected)
 
-Confidence (0–100%)
+Now open your browser and go to:
 
-Detailed explanation
+http://127.0.0.1:5000
 
-SAMPLE OUTPUT
-Input Type	Result	Confidence	Explanation
-Image (face1.jpg)	Fake	89.2%	Detected texture and lighting irregularities
-Video (sample.mp4)	Real	94.5%	Frames show consistent facial patterns
-🧩 EXPLANATION GENERATION
-Based on the model prediction:
 
-Fake:
+You will see the DeepGuard dashboard.
+7. Using the Application
+7.1 Main Dashboard (Home)
 
-“Detected irregular facial features and digital artifacts.”
+Upload media
 
-“Texture inconsistencies typical of AI-generated content.”
+Click “Upload media” on the left hero section.
 
-Real:
+Choose an image (.jpg, .jpeg, .png) or a video (.mp4, .avi, .mov).
 
-“Lighting, texture, and geometry appear natural.”
+Preview
 
-“No signs of manipulation detected.”
+The selected media will appear in the mock laptop screen:
 
-NOTES
-Maximum upload size: 100 MB
+Images display as a still picture.
 
-Allowed formats:
+Videos display with playback controls.
 
-Images → .jpg, .jpeg, .png
+Analysis
 
-Videos → .mp4, .avi, .mov
+As soon as a file is selected, the app will:
 
-The model loads once at startup for faster predictions.
+Show an “Analyzing media…” overlay with:
 
-If OpenCV cannot extract frames, the system flashes an error message.
+Animated progress bar
+
+“Face alignment → Feature extraction → Temporal analysis → Final verdict” steps
+
+Send the file to the backend (/analyze API).
+
+Results
+
+When analysis completes:
+
+The overlay disappears.
+
+The side panel on the right of the mock screen updates with:
+
+Prediction: Real or Fake
+
+Confidence (%): probability of deepfake
+
+Media type: Image or Video
+
+Reasoning: textual explanation of the decision.
+
+A summary of the result is also posted automatically in the chat panel.
+
+7.2 Chat Assistant
+
+Located on the right side of the screen.
+
+You can:
+
+Ask: “How do you detect deepfakes?”
+
+Ask: “Which dataset did you train on?”
+
+Ask: “What does a fake score mean?”
+
+The assistant is currently rule-based (no external API calls), so it is safe to run offline.
